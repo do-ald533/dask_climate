@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  scheduler:
+    build: .
+    container_name: dask_scheduler
+    command: dask-scheduler
+    ports:
+      - "8786:8786"
+      - "8787:8787"
+    networks:
+      - dask_network
+    env_file:
+      - .env
+
+  worker:
+    build: .
+    deploy:
+      replicas: 3
+    container_name: dask_worker
+    depends_on:
+      - scheduler
+    command: dask-worker tcp://scheduler:8786
+    networks:
+      - dask_network
+    env_file:
+      - .env
+
+networks:
+  dask_network:
+    driver: bridge
